@@ -1,252 +1,446 @@
-# Ubuntu 22.04 in Termux - Quick Start Guide
+# 🐧 Ubuntu 22.04 di Termux — Panduan Lengkap untuk Pemula
 
-## Installation
+Panduan ini dibuat **sangat jelas dan detail**, cocok untuk yang **baru pertama kali** pakai Termux. Ikuti langkahnya satu per satu, jangan skip.
 
-### Step 1: Copy the script to your phone
-Transfer `termux-ubuntu-installer.sh` to your Termux home directory or download it in Termux.
+---
 
-### Step 2: Run the installer
+## 📌 Daftar Isi
+
+1. [Apa itu Termux dan Ubuntu?](#1-apa-itu-termux-dan-ubuntu)
+2. [Persiapan Sebelum Install](#2-persiapan-sebelum-install)
+3. [Cara Install Termux yang Benar](#3-cara-install-termux-yang-benar)
+4. [Cara Install Ubuntu (Step by Step)](#4-cara-install-ubuntu-step-by-step)
+5. [Cara Masuk ke Ubuntu](#5-cara-masuk-ke-ubuntu)
+6. [Setup Pertama Kali di Ubuntu](#6-setup-pertama-kali-di-ubuntu)
+7. [Cara Keluar dari Ubuntu](#7-cara-keluar-dari-ubuntu)
+8. [Cara Hapus/Uninstall Ubuntu](#8-cara-hapusuninstall-ubuntu)
+9. [Masalah Umum dan Solusinya](#9-masalah-umum-dan-solusinya)
+10. [Pertanyaan yang Sering Ditanya (FAQ)](#10-pertanyaan-yang-sering-ditanya-faq)
+
+---
+
+## 1. Apa itu Termux dan Ubuntu?
+
+### 🤔 Termux itu apa?
+Termux adalah **aplikasi terminal Linux di Android**. Anggap saja seperti "mini komputer Linux" yang jalan di HP kamu. Tanpa perlu root.
+
+### 🤔 Ubuntu itu apa?
+Ubuntu adalah **sistem operasi Linux** yang populer. Biasanya dipakai di laptop/PC.
+
+### 🤔 Kenapa install Ubuntu di Termux?
+- Belajar Linux tanpa beli laptop
+- Menjalankan tools Linux (Python, Git, dll)
+- Coding di HP
+- Server kecil di HP
+
+> ⚠️ **Catatan penting:** Ubuntu di Termux **BUKAN** Ubuntu asli 100%. Namanya **PRoot** — semacam "simulasi" Ubuntu. Beberapa fitur seperti systemd, Docker, dan kernel tidak akan jalan.
+
+---
+
+## 2. Persiapan Sebelum Install
+
+Sebelum mulai, pastikan hal-hal berikut:
+
+### ✅ Ceklis Persiapan
+
+| No | Persyaratan | Cara Cek | Minimal |
+|----|-------------|----------|---------|
+| 1 | Android versi | Settings → About Phone | Android 7.0+ |
+| 2 | Arsitektur HP | Buka Termux → ketik `uname -m` | `aarch64` |
+| 3 | Ruang penyimpanan | Settings → Storage | **3 GB kosong** |
+| 4 | RAM | Settings → About Phone | 2 GB+ |
+| 5 | Internet | Buka browser | Stabil |
+
+### ❌ JANGAN pakai Termux dari Play Store
+Termux di Play Store **sudah usang** dan **banyak error**. Wajib pakai dari **F-Droid**.
+
+---
+
+## 3. Cara Install Termux yang Benar
+
+### Langkah 1: Download F-Droid
+1. Buka browser di HP
+2. Kunjungi: **https://f-droid.org**
+3. Klik tombol **Download F-Droid**
+4. Install file APK-nya (izinkan "Install from unknown sources" jika diminta)
+
+### Langkah 2: Install Termux dari F-Droid
+1. Buka aplikasi **F-Droid** yang baru diinstall
+2. Ketik di kolom pencarian: `Termux`
+3. Pilih **Termux** (bukan Termux:API, bukan Termux:Styling)
+4. Klik **Install**
+5. Tunggu sampai selesai
+
+### Langkah 3: Buka Termux
+1. Buka aplikasi Termux
+2. Akan muncul layar hitam dengan tulisan `$` — itu artinya Termux siap
+3. Ketik perintah berikut untuk update:
 ```bash
-cd ~
+pkg update && pkg upgrade -y
+```
+4. Tunggu sampai selesai (bisa 5-10 menit pertama kali)
+5. Jika muncul pertanyaan, tekan `Enter` atau ketik `y`
+
+> 💡 **Tips:** Jika muncul "Do you want to continue? [Y/n]", ketik `y` lalu Enter.
+
+---
+
+## 4. Cara Install Ubuntu (Step by Step)
+
+### 🚀 Metode 1: Cara Otomatis (Paling Mudah — DISARANKAN)
+
+**Copy paste perintah ini ke Termux, lalu tekan Enter:**
+
+```bash
+pkg install -y git && git clone https://github.com/nezXproject/Ubuntu-Installer-Termux.git && cd Ubuntu-Installer-Termux && bash termux-ubuntu-installer.sh
+```
+
+**Apa yang terjadi?** Perintah di atas akan:
+1. Install `git` (untuk download file dari GitHub)
+2. Download repository installer dari GitHub
+3. Masuk ke folder hasil download
+4. Jalankan script installer Ubuntu
+
+**Tunggu 10-20 menit.** Proses yang akan berjalan:
+
+| Tahap | Waktu | Keterangan |
+|-------|-------|------------|
+| Cek sistem | 10 detik | Cek HP, storage, kernel |
+| Install dependencies | 1-2 menit | Install proot, wget, tar |
+| Download Ubuntu | 5-15 menit | ~500 MB, tergantung internet |
+| Ekstrak file | 2-5 menit | Extract rootfs |
+| Konfigurasi | 30 detik | Setup DNS & launcher |
+| Verifikasi | 30 detik | Tes instalasi |
+
+Jika berhasil, akan muncul tulisan:
+```
+╔══════════════════════════════════════════════════╗
+║          INSTALASI BERHASIL! 🎉                  ║
+╚══════════════════════════════════════════════════╝
+```
+
+---
+
+### 🛠️ Metode 2: Cara Manual (Jika Metode 1 Gagal)
+
+#### Langkah 1: Install Dependencies
+
+Ketik satu per satu di Termux:
+
+```bash
+pkg install -y proot wget tar git
+```
+
+Penjelasan:
+- `proot` — Untuk menjalankan Ubuntu
+- `wget` — Untuk download file
+- `tar` — Untuk ekstrak file
+- `git` — Untuk download dari GitHub
+
+#### Langkah 2: Download Installer
+
+```bash
+git clone https://github.com/nezXproject/Ubuntu-Installer-Termux.git
+```
+
+#### Langkah 3: Masuk ke Folder
+
+```bash
+cd Ubuntu-Installer-Termux
+```
+
+#### Langkah 4: Jalankan Installer
+
+```bash
 bash termux-ubuntu-installer.sh
 ```
 
-The script will:
-- ✓ Check your device and available space
-- ✓ Download Ubuntu 22.04 rootfs (~500MB)
-- ✓ Extract it (takes 2-5 minutes)
-- ✓ Set up launcher scripts
-- ✓ Check kernel compatibility
-- ✓ Verify the installation
+Tunggu sampai selesai. Jangan tutup aplikasi Termux.
 
-**Total time: 10-20 minutes** (depending on internet speed)
+---
 
-### Step 3: Launch Ubuntu
-Once installation finishes, start Ubuntu with:
+## 5. Cara Masuk ke Ubuntu
+
+Setelah instalasi selesai, ketik:
+
 ```bash
 ~/startubuntu.sh
 ```
 
-You'll see a root prompt like:
+**Tunggu 5-15 detik.** Jika berhasil, tampilan prompt akan berubah dari:
+```
+~ $
+```
+menjadi:
 ```
 root@localhost:~#
 ```
 
-Congratulations! You're now in Ubuntu. 🎉
+> 🎉 **Selamat! Kamu sekarang sudah masuk ke Ubuntu!**
+
+Coba ketik perintah ini untuk tes:
+```bash
+cat /etc/os-release
+```
+Harus muncul tulisan `Ubuntu 22.04`.
 
 ---
 
-## First Time in Ubuntu
+## 6. Setup Pertama Kali di Ubuntu
 
-### Update packages
+Setelah masuk Ubuntu, **lakukan ini dulu** (sekali saja):
+
+### Langkah 1: Update Package
+
 ```bash
 apt update && apt upgrade -y
 ```
 
-### Install useful tools
+⏱️ Tunggu 3-10 menit. Kalau muncul pertanyaan, tekan `Enter`.
+
+### Langkah 2: Install Tools Dasar
+
 ```bash
-# Development essentials
-apt install build-essential git python3 python3-pip -y
-
-# Text editors
-apt install nano vim -y
-
-# Network tools
-apt install curl wget net-tools -y
+apt install -y build-essential git python3 python3-pip nano vim curl wget net-tools
 ```
 
-### Create a regular user (recommended)
+Penjelasan:
+- `build-essential` — Compiler (untuk compile program)
+- `git` — Version control
+- `python3`, `python3-pip` — Python & package manager
+- `nano`, `vim` — Text editor
+- `curl`, `wget` — Download file
+- `net-tools` — Tools network
+
+### Langkah 3: Buat User Baru (Opsional, tapi Disarankan)
+
 ```bash
 adduser ubuntu
-# Follow the prompts, then exit and re-login
+```
+- Masukkan password (bebas)
+- Tekan Enter untuk yang lain
+- Ketik `y` saat ditanya "Is the information correct?"
+
+Setelah itu, keluar & masuk lagi sebagai user:
+```bash
+exit
+~/startubuntu.sh
+su - ubuntu
 ```
 
 ---
 
-## Common Tasks
+## 7. Cara Keluar dari Ubuntu
 
-### Exit Ubuntu and return to Termux
+Ketik:
 ```bash
 exit
 ```
 
-### Access files from both Termux and Ubuntu
-Your home directory is at `/root` in Ubuntu. You can navigate to Android storage:
-```bash
-# View Termux files from Ubuntu
-ls /root
+Atau tekan **Ctrl + D** di keyboard.
 
-# Files persist - changes in Ubuntu are saved
-```
-
-### Run a command in Ubuntu from Termux
-```bash
-~/startubuntu.sh -c "command here"
-```
-
-### Check Ubuntu installation size
-```bash
-du -sh ~/ubuntu-fs
-```
+Kamu akan kembali ke Termux (prompt jadi `~ $` lagi).
 
 ---
 
-## Troubleshooting
+## 8. Cara Hapus/Uninstall Ubuntu
 
-### Problem: "Kernel too old" error
-
-**Solution:**
-1. Open `~/startubuntu.sh` with a text editor
-2. Find this line (around line 18):
-   ```bash
-   # PROOT_ARGS="-k 4.14.81"
-   ```
-3. Remove the `#` at the start:
-   ```bash
-   PROOT_ARGS="-k 4.14.81"
-   ```
-4. Save and try running Ubuntu again
-
-**Why:** Very old Android devices have older kernels. This tells proot to emulate a newer kernel interface.
-
-### Problem: "No space left on device"
-
-**Solution:**
-- Ubuntu needs at least 3GB free space
-- Check available space: `df -h`
-- Clean up: `rm -rf ~/ubuntu-fs` and reinstall
-
-### Problem: Slow performance
-
-**This is normal!** PRoot adds overhead because it:
-- Intercepts system calls
-- Translates between file systems
-- Emulates a Linux environment on Android
-
-**Tips:**
-- Close other apps running in the background
-- Don't run heavy processes simultaneously
-
-### Problem: "proot: command not found"
-
-**Solution:**
-```bash
-apt update
-apt install proot -y
-```
-
-### Problem: Network not working in Ubuntu
-
-Ubuntu can access the internet through Termux's network connection.
-
-**Check if connected:**
-```bash
-ping -c 1 google.com
-```
-
-If it fails:
-1. Exit Ubuntu and Termux
-2. Check your Android device's internet connection
-3. Return to Termux and try again
-
----
-
-## Advanced Usage
-
-### Mount additional directories
-Edit `~/startubuntu.sh` and add bind mounts. For example, to access Termux packages:
-
-```bash
-proot -r "$UBUNTU_FS" \
-    -b /dev \
-    -b /sys \
-    -b /proc \
-    -b /data/data/com.termux/files/usr:/host_termux \  # Add this
-    -w /root \
-    /bin/bash --login
-```
-
-Then inside Ubuntu:
-```bash
-ls /host_termux  # Access Termux packages
-```
-
-### Run GUI applications (requires additional setup)
-This requires X11 forwarding. It's complex but possible. Search "Termux X11" for guides.
-
-### Use Ubuntu with SSH
-
-1. Inside Ubuntu, install OpenSSH:
-   ```bash
-   apt install openssh-server -y
-   ```
-
-2. Start the SSH server:
-   ```bash
-   service ssh start
-   ```
-
-3. From another device, SSH into your phone:
-   ```bash
-   ssh root@your-phone-ip -p 2222
-   ```
-
----
-
-## Uninstalling Ubuntu
-
-To free up space and remove Ubuntu completely:
+Kalau mau hapus Ubuntu dan bebaskan storage:
 
 ```bash
 bash ~/uninstall-ubuntu.sh
 ```
 
-**Warning:** This deletes everything in `~/ubuntu-fs`. Make sure you've backed up any important files first!
+Akan muncul konfirmasi:
+```
+Apakah Anda yakin? (y/N):
+```
+
+Ketik `y` lalu Enter.
+
+> ⚠️ **PERINGATAN:** Semua file di dalam Ubuntu akan **HILANG PERMANEN**. Backup dulu kalau ada file penting!
 
 ---
 
-## Important Limitations
+## 9. Masalah Umum dan Solusinya
 
-⚠️ **Things that won't work in Ubuntu on Termux:**
+### ❌ Masalah 1: "Kernel too old"
 
-- **Systemd/Systemctl**: Services don't auto-start
-  - Solution: Start services manually (e.g., `service nginx start`)
-  
-- **Docker/Container tools**: Requires kernel features Ubuntu can't access
-  - Alternative: Use chroot or proot directly
+**Gejala:** Muncul error saat masuk Ubuntu.
 
-- **Kernel updates**: You can't update the kernel, Android controls it
-  - The kernel is shared with Android
-
-- **Some device drivers**: Hardware access is limited
-  - USB, GPU, etc. may not be fully accessible
-
-- **Cron/scheduled tasks**: Background tasks are limited by Android
-  - Solution: Use Termux's `at` command or set alarms manually
-
----
-
-## Resources
-
-- **Termux Wiki - PRoot**: https://wiki.termux.com/wiki/PRoot
-- **PRoot Documentation**: https://proot-me.github.io/
-- **Ubuntu Base**: https://wiki.ubuntu.com/Base
-- **Termux GitHub**: https://github.com/termux
+**Solusi:**
+1. Edit file launcher:
+```bash
+nano ~/startubuntu.sh
+```
+2. Cari baris ini (sekitar baris 18):
+```
+PROOT_ARGS=""
+```
+3. Ubah jadi:
+```
+PROOT_ARGS="-k 4.14.81"
+```
+4. Simpan: tekan `Ctrl + X`, lalu `Y`, lalu `Enter`
+5. Coba lagi: `~/startubuntu.sh`
 
 ---
 
-## Tips & Tricks
+### ❌ Masalah 2: "No space left on device"
 
-✅ **Pro tips:**
+**Gejala:** Install gagal karena storage penuh.
 
-1. **Speed up repeated starts**: Keep your terminal open between Ubuntu sessions
-2. **Save bandwidth**: Run `apt autoremove` to clean up old package files
-3. **Free disk space**: Use `apt autoclean && apt autoremove`
-4. **Check system info**: Inside Ubuntu, run `cat /proc/version` to see kernel details
-5. **Backup your setup**: Compress `~/ubuntu-fs` to save your customized environment
+**Solusi:**
+1. Cek storage:
+```bash
+df -h
+```
+2. Hapus install lama:
+```bash
+rm -rf ~/ubuntu-fs
+```
+3. Kosongkan cache Termux:
+```bash
+pkg clean
+rm -rf ~/.cache
+```
+4. Install ulang
 
 ---
 
-**Questions?** Check the Termux community or search "proot ubuntu" for additional guides!
+### ❌ Masalah 3: "proot: command not found"
 
-Happy hacking! 🐧
+**Solusi:**
+```bash
+pkg update
+pkg install proot -y
+```
+
+---
+
+### ❌ Masalah 4: Network tidak jalan di Ubuntu
+
+**Gejala:** `ping google.com` gagal.
+
+**Solusi (dari dalam Ubuntu):**
+```bash
+echo "nameserver 8.8.8.8" > /etc/resolv.conf
+echo "nameserver 8.8.4.4" >> /etc/resolv.conf
+```
+
+Kalau masih gagal:
+1. Keluar Ubuntu (`exit`)
+2. Cek internet HP (buka browser)
+3. Masuk Ubuntu lagi
+
+---
+
+### ❌ Masalah 5: Ubuntu lambat / lag
+
+**Ini NORMAL.** PRoot memang lambat karena harus "menipu" sistem Android.
+
+**Yang bisa dilakukan:**
+- Tutup aplikasi lain yang berjalan
+- Jangan jalankan aplikasi berat
+- Restart Termux sesekali
+
+---
+
+### ❌ Masalah 6: Muncul "Cannot open /dev/tty"
+
+**Solusi:**
+```bash
+pkg install -y ncurses-utils
+~/startubuntu.sh
+```
+
+---
+
+### ❌ Masalah 7: Download Ubuntu stuck / gagal
+
+**Solusi:**
+1. Cek koneksi internet
+2. Hapus file rusak:
+```bash
+rm -f ~/ubuntu-rootfs.tar.gz
+```
+3. Jalankan ulang installer
+4. Kalau masih gagal, coba pakai WiFi (bukan data seluler)
+
+---
+
+## 10. Pertanyaan yang Sering Ditanya (FAQ)
+
+### ❓ Apakah perlu root?
+**Tidak.** Installer ini 100% tanpa root.
+
+### ❓ Apakah HP saya bisa rusak?
+**Tidak.** Ubuntu di Termux hanya "aplikasi biasa", tidak mengubah sistem Android.
+
+### ❓ Berapa storage yang dibutuhkan?
+Minimal **3 GB** kosong. Rekomendasi **5 GB+**.
+
+### ❓ Bisa install GUI (tampilan desktop)?
+Bisa, tapi butuh setup tambahan (VNC atau Termux:X11). Cari tutorial "Termux X11" di Google.
+
+### ❓ Bisa install Docker?
+**Tidak bisa.** Docker butuh fitur kernel yang tidak bisa diakses PRoot.
+
+### ❓ Bisa jalankan server web (nginx, apache)?
+**Bisa**, tapi harus dijalankan manual:
+```bash
+service nginx start
+```
+Tidak akan auto-start saat Ubuntu dibuka.
+
+### ❓ Bisa install Node.js / PHP / lainnya?
+**Bisa.** Asalkan tersedia di repositori Ubuntu:
+```bash
+apt install nodejs npm -y
+apt install php -y
+```
+
+### ❓ File di Ubuntu disimpan di mana?
+Di `/data/data/com.termux/files/home/ubuntu-fs/`
+Tapi biasanya diakses dari Termux: `~/ubuntu-fs/root/`
+
+### ❓ Bagaimana kalau HP restart?
+Ubuntu tetap ada. Tinggal buka Termux lagi, lalu:
+```bash
+~/startubuntu.sh
+```
+
+### ❓ Apakah bisa install Ubuntu versi lain?
+Bisa, tapi harus ubah script manual. Default: Ubuntu 22.04 (Jammy).
+
+---
+
+## 📞 Bantuan Lebih Lanjut
+
+- **Termux Wiki:** https://wiki.termux.com
+- **PRoot Docs:** https://proot-me.github.io
+- **Buka Issue:** https://github.com/nezXproject/Ubuntu-Installer-Termux/issues
+
+---
+
+## ⚠️ Keterbatasan yang Perlu Diketahui
+
+| Fitur | Bisa? | Catatan |
+|-------|-------|---------|
+| `apt install` | ✅ | Jalan normal |
+| `systemctl` | ❌ | Ganti dengan `service xxx start` |
+| Docker | ❌ | Butuh kernel feature |
+| Kernel update | ❌ | Dikontrol Android |
+| USB/GPU | ⚠️ | Terbatas / tidak jalan |
+| Cron | ⚠️ | Terbatas |
+| SSH server | ✅ | Jalan di port 2222 |
+
+---
+
+## 🎉 Selesai!
+
+Kalau kamu berhasil sampai sini, berarti kamu sudah punya **Ubuntu di HP**! 🐧📱
+
+Selamat belajar Linux! Kalau bingung, baca ulang dari atas, atau tanya di kolom Issues GitHub.
+
+**Happy hacking!** 🚀
