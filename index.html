@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🐧 Ubuntu 22.04 Installer for Termux</title>
+<meta name="description" content="Install Ubuntu 22.04 on Android via Termux — No root required.">
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg2: #161b22;
+    --bg3: #21262d;
+    --border: #30363d;
+    --text: #c9d1d9;
+    --text-dim: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --red: #f85149;
+    --yellow: #d29922;
+    --purple: #bc8cff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding-bottom: 60px;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code {
+    background: var(--bg3);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: "SF Mono", Monaco, "Cascadia Code", monospace;
+    font-size: 0.9em;
+    color: var(--purple);
+  }
+  pre {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    overflow-x: auto;
+    margin: 12px 0;
+    position: relative;
+  }
+  pre code {
+    background: none;
+    padding: 0;
+    color: var(--text);
+    font-size: 0.88em;
+  }
+
+  /* Header */
+  header {
+    background: linear-gradient(135deg, #1f2937 0%, #0d1117 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 40px 20px 30px;
+    text-align: center;
+  }
+  header h1 {
+    font-size: 2em;
+    margin-bottom: 12px;
+    background: linear-gradient(90deg, #58a6ff, #bc8cff, #3fb950);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  header p { color: var(--text-dim); font-size: 1em; }
+
+  /* Language Switcher */
+  .lang-switch {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 22px;
+    flex-wrap: wrap;
+  }
+  .lang-btn {
+    background: var(--bg3);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    font-family: inherit;
+  }
+  .lang-btn:hover {
+    background: var(--bg2);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+  .lang-btn.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    box-shadow: 0 4px 12px rgba(88,166,255,0.35);
+  }
+
+  /* Badges */
+  .badges {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    color: var(--text-dim);
+  }
+
+  /* Container */
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  /* Sections */
+  section {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin: 20px 0;
+    animation: fadeIn 0.4s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  section h2 {
+    font-size: 1.4em;
+    margin-bottom: 14px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  section h3 {
+    font-size: 1.1em;
+    margin: 18px 0 10px;
+    color: var(--accent);
+  }
+  section p { margin: 10px 0; }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 0.92em;
+  }
+  th, td {
+    padding: 10px 12px;
+    text-align: left;
+    border: 1px solid var(--border);
+  }
+  th {
+    background: var(--bg3);
+    font-weight: 600;
+  }
+  tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  /* Alert boxes */
+  .alert {
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 14px 0;
+    border-left: 4px solid;
+    font-size: 0.95em;
+  }
+  .alert-warn { background: rgba(210,153,34,0.1); border-color: var(--yellow); }
+  .alert-danger { background: rgba(248,81,73,0.1); border-color: var(--red); }
+  .alert-info { background: rgba(88,166,255,0.1); border-color: var(--accent); }
+  .alert-success { background: rgba(63,185,80,0.1); border-color: var(--green); }
+
+  /* Copy button */
+  .copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: var(--bg3);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 4px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8em;
+    font-family: inherit;
+    transition: all 0.15s ease;
+  }
+  .copy-btn:hover { background: var(--accent); color: #fff; }
+  .copy-btn.copied { background: var(--green); color: #fff; }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 40px 20px 20px;
+    color: var(--text-dim);
+    font-size: 0.88em;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+
+  /* Mobile */
+  @media (max-width: 600px) {
+    header h1 { font-size: 1.4em; }
+    section { padding: 18px; }
+    .lang-btn { padding: 8px 14px; font-size: 0.85em; }
+    table { font-size: 0.82em; }
+    th, td { padding: 8px; }
+  }
+
+  /* Hidden until JS loads */
+  [data-lang] { display: none; }
+  [data-lang].active { display: block; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🐧 Ubuntu 22.04 Installer for Termux</h1>
+  <p data-i18n="subtitle"></p>
+
+  <div class="lang-switch">
+    <button class="lang-btn" data-set-lang="id">🇮🇩 Indonesia</button>
+    <button class="lang-btn" data-set-lang="es">🇪🇸 Español</button>
+    <button class="lang-btn" data-set-lang="en">🇬🇧 English</button>
+  </div>
+
+  <div class="badges">
+    <span class="badge">v22.04</span>
+    <span class="badge">Termux</span>
+    <span class="badge">No Root</span>
+    <span class="badge">MIT License</span>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- ================= INDONESIA ================= -->
+  <div data-lang="id" class="active">
+
+    <section>
+      <h2>📋 Persyaratan</h2>
+      <table>
+        <tr><th>Persyaratan</th><th>Minimal</th><th>Rekomendasi</th></tr>
+        <tr><td>Android</td><td>7.0</td><td>10+</td></tr>
+        <tr><td>Arsitektur</td><td>ARM64 (aarch64)</td><td>ARM64</td></tr>
+        <tr><td>Storage kosong</td><td>3 GB</td><td>5 GB+</td></tr>
+        <tr><td>RAM</td><td>2 GB</td><td>4 GB+</td></tr>
+        <tr><td>Termux</td><td><b>F-Droid</b></td><td>F-Droid</td></tr>
+      </table>
+      <div class="alert alert-warn">
+        ⚠️ <b>JANGAN</b> install Termux dari Play Store! Sudah usang. Wajib dari
+        <a href="https://f-droid.org/packages/com.termux/" target="_blank">F-Droid</a>.
+      </div>
+    </section>
+
+    <section>
+      <h2>🚀 Cara Install (Otomatis)</h2>
+      <p>Buka Termux, copy-paste perintah ini, tekan Enter:</p>
+      <pre><code>pkg install -y git && git clone https://github.com/nezXproject/Ubuntu-Installer-Termux.git && cd Ubuntu-Installer-Termux && bash termux-ubuntu-installer.sh</code><button class="copy-btn">Copy</button></pre>
+      <p><b>Tunggu 10–20 menit.</b> Script akan otomatis:</p>
+      <ul style="margin-left: 20px; margin-top: 8px;">
+        <li>✅ Cek perangkat & storage</li>
+        <li>✅ Download Ubuntu (~500 MB)</li>
+        <li>✅ Extract rootfs</li>
+        <li>✅ Konfigurasi DNS</li>
+        <li>✅ Buat launcher script</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🎯 Cara Masuk ke Ubuntu</h2>
+      <pre><code>~/startubuntu.sh</code><button class="copy-btn">Copy</button></pre>
+      <p>Prompt akan berubah jadi:</p>
+      <pre><code>root@localhost:~#</code></pre>
+      <div class="alert alert-success">🎉 <b>Selamat! Kamu sekarang di Ubuntu!</b></div>
+      <p>Untuk keluar:</p>
+      <pre><code>exit</code><button class="copy-btn">Copy</button></pre>
+    </section>
+
+    <section>
+      <h2>📦 Setup Pertama Kali</h2>
+      <p>Setelah masuk Ubuntu, jalankan:</p>
+      <pre><code>apt update && apt upgrade -y
+apt install -y build-essential git python3 python3-pip nano vim curl wget net-tools</code><button class="copy-btn">Copy</button></pre>
+      <p>Buat user biasa (opsional, disarankan):</p>
+      <pre><code>adduser ubuntu</code><button class="copy-btn">Copy</button></pre>
+    </section>
+
+    <section>
+      <h2>🔧 Troubleshooting</h2>
+      <table>
+        <tr><th>Masalah</th><th>Solusi</th></tr>
+        <tr><td>❌ "Kernel too old"</td><td>Edit <code>~/startubuntu.sh</code>, ubah <code>PROOT_ARGS=""</code> jadi <code>PROOT_ARGS="-k 4.14.81"</code></td></tr>
+        <tr><td>❌ "No space left"</td><td>Butuh 3 GB kosong. Hapus: <code>rm -rf ~/ubuntu-fs</code> lalu install ulang</td></tr>
+        <tr><td>❌ "proot: command not found"</td><td><code>pkg install proot -y</code></td></tr>
+        <tr><td>❌ Network tidak jalan</td><td>Di Ubuntu: <code>echo "nameserver 8.8.8.8" &gt; /etc/resolv.conf</code></td></tr>
+        <tr><td>❌ Lambat / lag</td><td>Normal. PRoot memang lambat. Tutup aplikasi lain.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>🗑️ Cara Uninstall</h2>
+      <pre><code>bash ~/uninstall-ubuntu.sh</code><button class="copy-btn">Copy</button></pre>
+      <div class="alert alert-danger">⚠️ Semua data di Ubuntu akan <b>hilang permanen</b>.</div>
+    </section>
+
+    <section>
+      <h2>⚠️ Keterbatasan</h2>
+      <table>
+        <tr><th>Fitur</th><th>Bisa?</th><th>Catatan</th></tr>
+        <tr><td><code>apt install</code></td><td>✅</td><td>Normal</td></tr>
+        <tr><td><code>systemctl</code></td><td>❌</td><td>Pakai <code>service xxx start</code></td></tr>
+        <tr><td>Docker</td><td>❌</td><td>Butuh kernel feature</td></tr>
+        <tr><td>GUI desktop</td><td>⚠️</td><td>Butuh VNC / Termux:X11</td></tr>
+        <tr><td>SSH server</td><td>✅</td><td>Port 2222</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>❓ FAQ</h2>
+      <p><b>Q: Perlu root?</b> → Tidak.</p>
+      <p><b>Q: HP bisa rusak?</b> → Tidak, Ubuntu hanya aplikasi biasa.</p>
+      <p><b>Q: Bisa install Node.js / PHP?</b> → Bisa: <code>apt install nodejs npm -y</code></p>
+      <p><b>Q: File Ubuntu disimpan di mana?</b> → <code>~/ubuntu-fs/</code> (dari Termux)</p>
+      <p><b>Q: HP restart, Ubuntu hilang?</b> → Tidak. Buka Termux lagi, jalankan <code>~/startubuntu.sh</code>.</p>
+    </section>
+
+  </div>
+
+  <!-- ================= ESPAÑOL ================= -->
+  <div data-lang="es">
+
+    <section>
+      <h2>📋 Requisitos</h2>
+      <table>
+        <tr><th>Requisito</th><th>Mínimo</th><th>Recomendado</th></tr>
+        <tr><td>Android</td><td>7.0</td><td>10+</td></tr>
+        <tr><td>Arquitectura</td><td>ARM64 (aarch64)</td><td>ARM64</td></tr>
+        <tr><td>Almacenamiento libre</td><td>3 GB</td><td>5 GB+</td></tr>
+        <tr><td>RAM</td><td>2 GB</td><td>4 GB+</td></tr>
+        <tr><td>Termux</td><td><b>F-Droid</b></td><td>F-Droid</td></tr>
+      </table>
+      <div class="alert alert-warn">
+        ⚠️ <b>NO</b> instales Termux desde Play Store. Está obsoleto. Usa
+        <a href="https://f-droid.org/packages/com.termux/" target="_blank">F-Droid</a>.
+      </div>
+    </section>
+
+    <section>
+      <h2>🚀 Instalación (Automática)</h2>
+      <p>Abre Termux, copia y pega este comando, presiona Enter:</p>
+      <pre><code>pkg install -y git && git clone https://github.com/nezXproject/Ubuntu-Installer-Termux.git && cd Ubuntu-Installer-Termux && bash termux-ubuntu-installer.sh</code><button class="copy-btn">Copy</button></pre>
+      <p><b>Espera 10–20 minutos.</b> El script hará automáticamente:</p>
+      <ul style="margin-left: 20px; margin-top: 8px;">
+        <li>✅ Verificar dispositivo y almacenamiento</li>
+        <li>✅ Descargar Ubuntu (~500 MB)</li>
+        <li>✅ Extraer rootfs</li>
+        <li>✅ Configurar DNS</li>
+        <li>✅ Crear script de inicio</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🎯 Cómo Entrar a Ubuntu</h2>
+      <pre><code>~/startubuntu.sh</code><button class="copy-btn">Copy</button></pre>
+      <p>El prompt cambiará a:</p>
+      <pre><code>root@localhost:~#</code></pre>
+      <div class="alert alert-success">🎉 <b>¡Felicidades! ¡Ya estás en Ubuntu!</b></div>
+      <p>Para salir:</p>
+      <pre><code>exit</code><button class="copy-btn">Copy</button></pre>
+    </section>
+
+    <section>
+      <h2>📦 Configuración Inicial</h2>
+      <p>Una vez dentro de Ubuntu, ejecuta:</p>
+      <pre><code>apt update && apt upgrade -y
+apt install -y build-essential git python3 python3-pip nano vim curl wget net-tools</code><button class="copy-btn">Copy</button></pre>
+      <p>Crear usuario normal (opcional, recomendado):</p>
+      <pre><code>adduser ubuntu</code><button class="copy-btn">Copy</button></pre>
+    </section>
+
+    <section>
+      <h2>🔧 Solución de Problemas</h2>
+      <table>
+        <tr><th>Problema</th><th>Solución</th></tr>
+        <tr><td>❌ "Kernel too old"</td><td>Edita <code>~/startubuntu.sh</code>, cambia <code>PROOT_ARGS=""</code> a <code>PROOT_ARGS="-k 4.14.81"</code></td></tr>
+        <tr><td>❌ "No space left"</td><td>Necesitas 3 GB libres. Borra: <code>rm -rf ~/ubuntu-fs</code> y reinstala</td></tr>
+        <tr><td>❌ "proot: command not found"</td><td><code>pkg install proot -y</code></td></tr>
+        <tr><td>❌ Sin red</td><td>Dentro de Ubuntu: <code>echo "nameserver 8.8.8.8" &gt; /etc/resolv.conf</code></td></tr>
+        <tr><td>❌ Lento / lag</td><td>Es normal. PRoot es lento. Cierra otras apps.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>🗑️ Cómo Desinstalar</h2>
+      <pre><code>bash ~/uninstall-ubuntu.sh</code><button class="copy-btn">Copy</button></pre>
+      <div class="alert alert-danger">⚠️ Todos los datos de Ubuntu se <b>borrarán permanentemente</b>.</div>
+    </section>
+
+    <section>
+      <h2>⚠️ Limitaciones</h2>
+      <table>
+        <tr><th>Función</th><th>¿Funciona?</th><th>Nota</th></tr>
+        <tr><td><code>apt install</code></td><td>✅</td><td>Normal</td></tr>
+        <tr><td><code>systemctl</code></td><td>❌</td><td>Usa <code>service xxx start</code></td></tr>
+        <tr><td>Docker</td><td>❌</td><td>Necesita feature del kernel</td></tr>
+        <tr><td>GUI escritorio</td><td>⚠️</td><td>Necesita VNC / Termux:X11</td></tr>
+        <tr><td>Servidor SSH</td><td>✅</td><td>Puerto 2222</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>❓ FAQ</h2>
+      <p><b>P: ¿Necesito root?</b> → No.</p>
+      <p><b>P: ¿Puede dañar mi teléfono?</b> → No, Ubuntu es solo una app más.</p>
+      <p><b>P: ¿Puedo instalar Node.js / PHP?</b> → Sí: <code>apt install nodejs npm -y</code></p>
+      <p><b>P: ¿Dónde se guardan los archivos de Ubuntu?</b> → En <code>~/ubuntu-fs/</code> (desde Termux)</p>
+      <p><b>P: Si reinicio el teléfono, ¿pierdo Ubuntu?</b> → No. Abre Termux otra vez y ejecuta <code>~/startubuntu.sh</code>.</p>
+    </section>
+
+  </div>
+
+  <!-- ================= ENGLISH ================= -->
+  <div data-lang="en">
+
+    <section>
+      <h2>📋 Requirements</h2>
+      <table>
+        <tr><th>Requirement</th><th>Minimum</th><th>Recommended</th></tr>
+        <tr><td>Android</td><td>7.0</td><td>10+</td></tr>
+        <tr><td>Architecture</td><td>ARM64 (aarch64)</td><td>ARM64</td></tr>
+        <tr><td>Free Storage</td><td>3 GB</td><td>5 GB+</td></tr>
+        <tr><td>RAM</td><td>2 GB</td><td>4 GB+</td></tr>
+        <tr><td>Termux</td><td><b>F-Droid</b></td><td>F-Droid</td></tr>
+      </table>
+      <div class="alert alert-warn">
+        ⚠️ <b>DO NOT</b> install Termux from Play Store! It is outdated. Use
+        <a href="https://f-droid.org/packages/com.termux/" target="_blank">F-Droid</a>.
+      </div>
+    </section>
+
+    <section>
+      <h2>🚀 Installation (Automatic)</h2>
+      <p>Open Termux, copy-paste this command, press Enter:</p>
+      <pre><code>pkg install -y git && git clone https://github.com/nezXproject/Ubuntu-Installer-Termux.git && cd Ubuntu-Installer-Termux && bash termux-ubuntu-installer.sh</code><button class="copy-btn">Copy</button></pre>
+      <p><b>Wait 10–20 minutes.</b> The script will automatically:</p>
+      <ul style="margin-left: 20px; margin-top: 8px;">
+        <li>✅ Check device & storage</li>
+        <li>✅ Download Ubuntu (~500 MB)</li>
+        <li>✅ Extract rootfs</li>
+        <li>✅ Configure DNS</li>
+        <li>✅ Create launcher script</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>🎯 How to Enter Ubuntu</h2>
+      <pre><code>~/startubuntu.sh</code><button class="copy-btn">Copy</button></pre>
+      <p>The prompt will change to:</p>
+      <pre><code>root@localhost:~#</code></pre>
+      <div class="alert alert-success">🎉 <b>Congratulations! You are now in Ubuntu!</b></div>
+      <p>To exit:</p>
+      <pre><code>exit</code><button class="copy-btn">Copy</button></pre>
+    </section>
+
+    <section>
+      <h2>📦 First-Time Setup</h2>
+      <p>Once inside Ubuntu, run:</p>
+      <pre><code>apt update && apt upgrade -y
+apt install -y build-essential git python3 python3-pip nano vim curl wget net-tools</code><button class="copy-btn">Copy</button></pre>
+      <p>Create a regular user (optional, recommended):</p>
+      <pre><code>adduser ubuntu</code><button class="copy-btn">Copy</button></pre>
+    </section>
+
+    <section>
+      <h2>🔧 Troubleshooting</h2>
+      <table>
+        <tr><th>Problem</th><th>Solution</th></tr>
+        <tr><td>❌ "Kernel too old"</td><td>Edit <code>~/startubuntu.sh</code>, change <code>PROOT_ARGS=""</code> to <code>PROOT_ARGS="-k 4.14.81"</code></td></tr>
+        <tr><td>❌ "No space left"</td><td>Need 3 GB free. Delete: <code>rm -rf ~/ubuntu-fs</code> then reinstall</td></tr>
+        <tr><td>❌ "proot: command not found"</td><td><code>pkg install proot -y</code></td></tr>
+        <tr><td>❌ No network</td><td>Inside Ubuntu: <code>echo "nameserver 8.8.8.8" &gt; /etc/resolv.conf</code></td></tr>
+        <tr><td>❌ Slow / lag</td><td>This is normal. PRoot is slow. Close other apps.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>🗑️ How to Uninstall</h2>
+      <pre><code>bash ~/uninstall-ubuntu.sh</code><button class="copy-btn">Copy</button></pre>
+      <div class="alert alert-danger">⚠️ All Ubuntu data will be <b>permanently deleted</b>.</div>
+    </section>
+
+    <section>
+      <h2>⚠️ Limitations</h2>
+      <table>
+        <tr><th>Feature</th><th>Works?</th><th>Note</th></tr>
+        <tr><td><code>apt install</code></td><td>✅</td><td>Normal</td></tr>
+        <tr><td><code>systemctl</code></td><td>❌</td><td>Use <code>service xxx start</code></td></tr>
+        <tr><td>Docker</td><td>❌</td><td>Requires kernel feature</td></tr>
+        <tr><td>GUI desktop</td><td>⚠️</td><td>Needs VNC / Termux:X11</td></tr>
+        <tr><td>SSH server</td><td>✅</td><td>Port 2222</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>❓ FAQ</h2>
+      <p><b>Q: Do I need root?</b> → No.</p>
+      <p><b>Q: Can it damage my phone?</b> → No, Ubuntu is just another app.</p>
+      <p><b>Q: Can I install Node.js / PHP?</b> → Yes: <code>apt install nodejs npm -y</code></p>
+      <p><b>Q: Where are Ubuntu files stored?</b> → In <code>~/ubuntu-fs/</code> (from Termux)</p>
+      <p><b>Q: If I restart my phone, will Ubuntu disappear?</b> → No. Open Termux again and run <code>~/startubuntu.sh</code>.</p>
+    </section>
+
+  </div>
+
+</div>
+
+<footer>
+  <p>
+    Made with ❤️ by
+    <a href="https://github.com/nezXproject" target="_blank">nezXproject</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/nezXproject/Ubuntu-Installer-Termux" target="_blank">GitHub Repo</a>
+  </p>
+  <p style="margin-top: 8px;">Happy hacking! 🐧</p>
+</footer>
+
+<script>
+  const SUBS = {
+    id: "Install Ubuntu 22.04 di Android via Termux — Tanpa Root.",
+    es: "Instala Ubuntu 22.04 en Android vía Termux — Sin Root.",
+    en: "Install Ubuntu 22.04 on Android via Termux — No Root Required."
+  };
+
+  function setLang(lang) {
+    // Update active content
+    document.querySelectorAll('[data-lang]').forEach(el => {
+      el.classList.toggle('active', el.dataset.lang === lang);
+    });
+
+    // Update buttons
+    document.querySelectorAll('[data-set-lang]').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.setLang === lang);
+    });
+
+    // Update subtitle
+    const sub = document.querySelector('[data-i18n="subtitle"]');
+    if (sub) sub.textContent = SUBS[lang] || SUBS.en;
+
+    // Update <html lang="">
+    document.documentElement.lang = lang;
+
+    // Save preference
+    try { localStorage.setItem('preferred-lang', lang); } catch(e) {}
+
+    // Update URL hash (optional, shareable)
+    history.replaceState(null, '', '#' + lang);
+  }
+
+  // Bind buttons
+  document.querySelectorAll('[data-set-lang]').forEach(btn => {
+    btn.addEventListener('click', () => setLang(btn.dataset.setLang));
+  });
+
+  // Auto-detect on load: URL hash > localStorage > browser lang
+  (function init() {
+    const hash = location.hash.replace('#', '');
+    let lang = null;
+
+    if (['id', 'es', 'en'].includes(hash)) {
+      lang = hash;
+    } else {
+      try { lang = localStorage.getItem('preferred-lang'); } catch(e) {}
+    }
+
+    if (!lang) {
+      const bl = (navigator.language || 'en').toLowerCase();
+      if (bl.startsWith('id')) lang = 'id';
+      else if (bl.startsWith('es')) lang = 'es';
+      else lang = 'en';
+    }
+
+    setLang(lang);
+  })();
+
+  // Copy buttons
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const code = btn.parentElement.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        btn.textContent = '✓ Copied';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 1500);
+      }).catch(() => {
+        btn.textContent = '✗ Failed';
+        setTimeout(() => btn.textContent = 'Copy', 1500);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
